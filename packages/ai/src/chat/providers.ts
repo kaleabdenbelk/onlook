@@ -38,12 +38,12 @@ export function initModel({
 }
 
 function getDahlProvider(model: string): LanguageModel {
-    if (!process.env.DAHL_API_KEY) {
-        throw new Error('DAHL_API_KEY must be set');
+    if (!process.env.OPENROUTER_API_KEY) {
+        throw new Error('OPENROUTER_API_KEY must be set');
     }
 
     const dahl = createOpenAI({
-        apiKey: process.env.DAHL_API_KEY,
+        apiKey: process.env.OPENROUTER_API_KEY,
         baseURL: 'https://inference.dahl.global/v1',
     });
 
