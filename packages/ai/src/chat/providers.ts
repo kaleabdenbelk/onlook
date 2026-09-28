@@ -1,12 +1,11 @@
 import {
     LLMProvider,
     MODEL_MAX_TOKENS,
-    OPENROUTER_MODELS,
     type InitialModelPayload,
     type ModelConfig,
 } from '@onlook/models';
 import { assertNever } from '@onlook/utility';
-import { createOpenAI } from '@ai-sdk/openai';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import type { LanguageModel } from 'ai';
 
 const DAHL_MODEL = 'MiniMaxAI/MiniMax-M2.7';
@@ -42,10 +41,11 @@ function getDahlProvider(model: string): LanguageModel {
         throw new Error('OPENROUTER_API_KEY must be set');
     }
 
-    const dahl = createOpenAI({
+    const dahl = createOpenAICompatible({
+        name: 'dahl',
         apiKey: process.env.OPENROUTER_API_KEY,
         baseURL: 'https://inference.dahl.global/v1',
     });
 
-    return dahl(model);
+    return dahl.chatModel(model);
 }
