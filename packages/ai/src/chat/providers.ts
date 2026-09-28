@@ -3,11 +3,13 @@ import {
     MODEL_MAX_TOKENS,
     OPENROUTER_MODELS,
     type InitialModelPayload,
-    type ModelConfig
+    type ModelConfig,
 } from '@onlook/models';
 import { assertNever } from '@onlook/utility';
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { createOpenAI } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
+
+const DAHL_MODEL = 'MiniMaxAI/MiniMax-M2.7';
 
 export function initModel({
     provider: requestedProvider,
@@ -16,23 +18,13 @@ export function initModel({
     let model: LanguageModel;
     let providerOptions: Record<string, any> | undefined;
     let headers: Record<string, string> | undefined;
-    let maxOutputTokens: number = MODEL_MAX_TOKENS[requestedModel];
+    const maxOutputTokens: number = MODEL_MAX_TOKENS[requestedModel];
 
     switch (requestedProvider) {
         case LLMProvider.OPENROUTER:
-            model = getOpenRouterProvider(requestedModel);
-            headers = {
-                'HTTP-Referer': 'https://onlook.com',
-                'X-Title': 'Onlook',
-            };
-            providerOptions = {
-                openrouter: { transforms: ['middle-out'] },
-            };
-            const isAnthropic = requestedModel === OPENROUTER_MODELS.CLAUDE_4_5_SONNET || requestedModel === OPENROUTER_MODELS.CLAUDE_3_5_HAIKU;
-            providerOptions = isAnthropic
-                ? { ...providerOptions, anthropic: { cacheControl: { type: 'ephemeral' } } }
-                : providerOptions;
+            model = getDahlProvider(DAHL_MODEL);
             break;
+
         default:
             assertNever(requestedProvider);
     }
@@ -45,10 +37,15 @@ export function initModel({
     };
 }
 
-function getOpenRouterProvider(model: OPENROUTER_MODELS): LanguageModel {
-    if (!process.env.OPENROUTER_API_KEY) {
-        throw new Error('OPENROUTER_API_KEY must be set');
+function getDahlProvider(model: string): LanguageModel {
+    if (!process.env.DAHL_API_KEY) {
+        throw new Error('DAHL_API_KEY must be set');
     }
-    const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
-    return openrouter(model);
+
+    const dahl = createOpenAI({
+        apiKey: process.env.DAHL_API_KEY,
+        baseURL: 'https://inference.dahl.global/v1',
+    });
+
+    return dahl(model);
 }
