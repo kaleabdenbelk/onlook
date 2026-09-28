@@ -5,7 +5,7 @@ import {
     type ModelConfig,
 } from '@onlook/models';
 import { assertNever } from '@onlook/utility';
-import { createOpenAICompatible } from '@openrouter/ai-sdk-provider';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import type { LanguageModel } from 'ai';
 
 const DAHL_MODEL = 'MiniMaxAI/MiniMax-M2.7';
